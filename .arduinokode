@@ -1,0 +1,139 @@
+#include <NewPing.h>
+#include <Servo.h>
+
+#define trigPin 13 //left
+#define echoPin 12 //left
+#define trigPin1 6 //right
+#define echoPin1 5 //right
+NewPing sonarLeft(13, 12, 100);
+NewPing sonarRight(6, 5, 100);
+
+Servo ServoL1;
+Servo ServoL2;
+Servo ServoH1;
+Servo ServoH2;
+
+boolean detectLeftLast;
+int counterChangeLeft;
+boolean leftIsOpen;
+boolean detectRightLast;
+int counterChangeRight;
+boolean rightIsOpen;
+long prevMillisLeft;
+long prevMillisRight;
+
+void setup() {
+  Serial.begin (9600);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(trigPin1, OUTPUT);
+  pinMode(echoPin1, INPUT);
+  ServoL1.attach(10);
+  ServoL2.attach(11);
+  ServoH1.attach(9);
+  ServoH2.attach(3);
+  ServoL1.write(100);
+  ServoL2.write(108);
+  ServoH1.write(108);
+  ServoH2.write(105);
+}
+
+void loop() {
+  int inLeft = sonarLeft.ping_cm();
+  int inRight = sonarRight.ping_cm();
+  boolean detectLeft = ((inLeft <= 10) && (inLeft != 0));
+  boolean detectRight = ((inRight <= 10) && (inRight != 0));
+
+  //LEFT SIDE
+  if (detectLeft) {
+    if ( detectLeftLast ) {
+      if ( counterChangeLeft < 10) {
+        counterChangeLeft++;
+      }
+    } else {
+      counterChangeLeft = 0;
+    }
+    detectLeftLast = true;
+  } else {
+    if ( detectLeftLast ) {
+      counterChangeLeft = 0;
+    } else {
+      if (counterChangeLeft < 10) {
+        counterChangeLeft++;
+      }
+    }
+    detectLeftLast = false;
+  }
+
+
+  //RIGHT SIDE
+  if (detectRight) {
+    if (detectRightLast ) {
+      if (counterChangeRight < 10) {
+        counterChangeRight++;
+      }
+    } else {
+      counterChangeRight = 0;
+    }
+    detectRightLast = true;
+  } else {
+    if ( detectRightLast ) {
+      counterChangeRight = 0;
+    } else {
+      if ( counterChangeRight < 10) {
+        counterChangeRight++;
+      }
+    }
+    detectRightLast = false;
+  }
+
+
+  //LEFT SIDE
+  if ( counterChangeLeft >= 10 ) {
+    if ( leftIsOpen && !detectLeft ) {
+      leftIsOpen = false;
+      prevMillisLeft = millis();
+    } else if ( !leftIsOpen && detectLeft ) {
+      leftIsOpen = true;
+    }
+  } 
+
+  //RIGHT SIDE
+  if ( counterChangeRight >= 10 ) {
+    if ( rightIsOpen && !detectRight ) {
+      rightIsOpen = false;
+      prevMillisRight = millis();
+    } else if ( !rightIsOpen && detectRight ) {
+      rightIsOpen = true;
+    }
+  } 
+
+
+  //LEFT SIDE
+  if ( leftIsOpen ) {
+    ServoL1.write(0);
+    ServoL2.write(0);
+    Serial.print("left: ");
+    Serial.println(inLeft);
+  } else {
+    if ( millis() > (prevMillisLeft + 2000) ) {
+      ServoL1.write(100);
+      ServoL2.write(108);
+      Serial.print('A');
+    }
+  }
+
+  //RIGHT SIDE
+  if ( rightIsOpen ) {
+    ServoH1.write(0);
+    ServoH2.write(0);
+    Serial.print("Right: "); 
+    Serial.println(inRight);
+  } else {
+    if ( millis() > (prevMillisRight + 2000) ) {
+      ServoH1.write(108);
+      ServoH2.write(105);
+     Serial.print('A');
+    }
+  }
+}
