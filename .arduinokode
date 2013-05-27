@@ -50,14 +50,17 @@ void loop() {
       if ( counterChangeLeft < 10) {
         counterChangeLeft++;
       }
-    } else {
+    } 
+    else {
       counterChangeLeft = 0;
     }
     detectLeftLast = true;
-  } else {
+  } 
+  else {
     if ( detectLeftLast ) {
       counterChangeLeft = 0;
-    } else {
+    } 
+    else {
       if (counterChangeLeft < 10) {
         counterChangeLeft++;
       }
@@ -69,18 +72,21 @@ void loop() {
   //RIGHT SIDE
   if (detectRight) {
     if (detectRightLast ) {
-      if (counterChangeRight < 10) {
+      if (counterChangeRight < 3) {
         counterChangeRight++;
       }
-    } else {
+    } 
+    else {
       counterChangeRight = 0;
     }
     detectRightLast = true;
-  } else {
+  } 
+  else {
     if ( detectRightLast ) {
       counterChangeRight = 0;
-    } else {
-      if ( counterChangeRight < 10) {
+    } 
+    else {
+      if ( counterChangeRight < 3) {
         counterChangeRight++;
       }
     }
@@ -93,47 +99,49 @@ void loop() {
     if ( leftIsOpen && !detectLeft ) {
       leftIsOpen = false;
       prevMillisLeft = millis();
-    } else if ( !leftIsOpen && detectLeft ) {
+    } 
+    else if ( !leftIsOpen && detectLeft ) {
       leftIsOpen = true;
+      Serial.println('A');
     }
   } 
 
   //RIGHT SIDE
-  if ( counterChangeRight >= 10 ) {
+  if ( counterChangeRight >= 3 ) {
     if ( rightIsOpen && !detectRight ) {
       rightIsOpen = false;
       prevMillisRight = millis();
-    } else if ( !rightIsOpen && detectRight ) {
+    } 
+    else if ( !rightIsOpen && detectRight ) {
       rightIsOpen = true;
+      Serial.println('A');
     }
   } 
+
 
 
   //LEFT SIDE
   if ( leftIsOpen ) {
     ServoL1.write(0);
     ServoL2.write(0);
-    Serial.print("left: ");
-    Serial.println(inLeft);
-  } else {
+  } 
+  else {
     if ( millis() > (prevMillisLeft + 2000) ) {
       ServoL1.write(100);
       ServoL2.write(108);
-      Serial.print('A');
     }
   }
-
-  //RIGHT SIDE
+  
+    //RIGHT SIDE
   if ( rightIsOpen ) {
     ServoH1.write(0);
     ServoH2.write(0);
-    Serial.print("Right: "); 
-    Serial.println(inRight);
-  } else {
+  } 
+  else {
     if ( millis() > (prevMillisRight + 2000) ) {
       ServoH1.write(108);
       ServoH2.write(105);
-     Serial.print('A');
     }
   }
 }
+
